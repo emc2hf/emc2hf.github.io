@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>WAF Bypass on emc2hf Blog
+</title>
+    <link>https://emc2hf.github.io/categories/waf-bypass/</link>
+    <description>Recent content in WAF Bypass on emc2hf Blog
+</description>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <copyright>@emc2hf</copyright>
+    <lastBuildDate>Sun, 17 Aug 2025 11:37:48 +0200</lastBuildDate>
+    <atom:link href="https://emc2hf.github.io/categories/waf-bypass/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>How I Successfully Bypassed Wordfence to Exploit SQLi in a Client&#39;s WordPress</title>
+      <link>https://emc2hf.github.io/blog/2025/08/17/how-i-successfully-bypassed-wordfence-to-exploit-sqli-in-a-clients-wordpress/</link>
+      <pubDate>Sun, 17 Aug 2025 11:37:48 +0200</pubDate>
+      <guid>https://emc2hf.github.io/blog/2025/08/17/how-i-successfully-bypassed-wordfence-to-exploit-sqli-in-a-clients-wordpress/</guid>
+      <description>&lt;p&gt;This is the journey of how I successfully bypassed Wordfence WAF to exploit a SQL Injection in an updated WordPress and Wordfence. The vulnerability was present in a custom plugin developed for my client by a 3rd party. In this post I will explain how I discovered the vulnerability and how I exploited it, successfully bypassing Wordfence SQLi security measures. All the code used in this post can be found at the end of the post. For obvious reasons I will not share the client&amp;rsquo;s website or vulnerable code, instead I developed a simple lab with &lt;code&gt;Docker&lt;/code&gt;.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

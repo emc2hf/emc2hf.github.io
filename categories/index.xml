@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Categories on emc2hf Blog
+</title>
+    <link>https://emc2hf.github.io/categories/</link>
+    <description>Recent content in Categories on emc2hf Blog
+</description>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <copyright>@emc2hf</copyright>
+    <lastBuildDate>Sun, 17 Aug 2025 11:37:48 +0200</lastBuildDate>
+    <atom:link href="https://emc2hf.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>2025</title>
+      <link>https://emc2hf.github.io/categories/2025/</link>
+      <pubDate>Sun, 17 Aug 2025 11:37:48 +0200</pubDate>
+      <guid>https://emc2hf.github.io/categories/2025/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Research</title>
+      <link>https://emc2hf.github.io/categories/research/</link>
+      <pubDate>Sun, 17 Aug 2025 11:37:48 +0200</pubDate>
+      <guid>https://emc2hf.github.io/categories/research/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>WAF</title>
+      <link>https://emc2hf.github.io/categories/waf/</link>
+      <pubDate>Sun, 17 Aug 2025 11:37:48 +0200</pubDate>
+      <guid>https://emc2hf.github.io/categories/waf/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>WAF Bypass</title>
+      <link>https://emc2hf.github.io/categories/waf-bypass/</link>
+      <pubDate>Sun, 17 Aug 2025 11:37:48 +0200</pubDate>
+      <guid>https://emc2hf.github.io/categories/waf-bypass/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Wordfence</title>
+      <link>https://emc2hf.github.io/categories/wordfence/</link>
+      <pubDate>Sun, 17 Aug 2025 11:37:48 +0200</pubDate>
+      <guid>https://emc2hf.github.io/categories/wordfence/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Wordpress</title>
+      <link>https://emc2hf.github.io/categories/wordpress/</link>
+      <pubDate>Sun, 17 Aug 2025 11:37:48 +0200</pubDate>
+      <guid>https://emc2hf.github.io/categories/wordpress/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>

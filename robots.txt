@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: https://emc2hf.github.io/sitemap.xml
