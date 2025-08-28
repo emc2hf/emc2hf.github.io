@@ -1,8 +1,8 @@
-# leonjza.github.io
+# emc2hf.github.io
 
-A checkbox Uncheckers' Notepad  
-Setup on a new computer with:
+[Blog link](https://emc2hf.github.io)
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/leonjza/leonjza.github.io/source/setup.sh | bash
-```
+This repository contains the source code for my blog. You are welcome to use the configurations or fork the repository if you find it useful.
+
+Special thanks to [leonjza](https://github.com/leonjza/leonjza.github.io), from whose repository I forked this project. I was looking for a blog setup to publish CTF writeups in Markdown, and I really admired the design and structure of his blog.
+

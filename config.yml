@@ -1,8 +1,8 @@
-baseUrl: https://leonjza.github.io
+baseUrl: https://emc2hf.github.io
 languageCode: en-us
 theme: PaperMod
-copyright: '<a href="https://twitter.com/leonjza">@leonjza</a>'
-paginate: 10
+copyright: '<a href="https://x.com/emc2hf">@emc2hf</a>'
+pagerSize: 10
 permalinks:
   posts: /blog/:year/:month/:day/:title/
 googleAnalytics: UA-44457032-2
@@ -16,14 +16,13 @@ enableEmoji: true
 
 params:
   env: production
-  author: Leon Jacobs
-  keywords: [blog,hack,ctf,leonjza,pentester,red team,attack]
+  author: Pol Sarís
+  keywords: [blog,hack,ctf,emc2hf,pentester,red team,attack,writeup]
   contentTypeName: posts
   defaultTheme: auto
   showMenuItems: 3 
   showReadingTime: true
   ShowShareButtons: true
-  ShowReadingTime: true
   displayFullLangName: true
   ShowPostNavLinks: true
   ShowBreadCrumbs: true
@@ -31,25 +30,24 @@ params:
   ShowToc: true
 
   homeInfoParams:
-    Title: "hello!"
+    Title: "Welcome to my Blog!"
     Content: >
-      Welcome to my personal corner of the Internet!  
+      Welcome to my Cybersecurity blog!  
 
-      Here you'll find all of my security research and CTF writeups in one place!
+      Here you'll find all of my security research and CTF writeups in detail. You can also read my posts on my [Medium](https://medium.com/@emc2hf) space!
+      
+
       For more about me, check out the [about me](about/) section!
 
   socialIcons:
     - name: twitter
-      url: "https://twitter.com/leonjza"
+      url: "https://x.com/emc2hf"
     - name: github
-      url: "https://github.com/leonjza"
+      url: "https://github.com/emc2hf-org"
+    - name: medium
+      url: "https://medium.com/@emc2hf"
     - name: rss
       url: "index.xml"
-
-  editPost:
-    URL: "https://github.com/leonjza/leonjza.github.io/tree/source/content"
-    Text: "Suggest Changes"
-    appendFilePath: true
 
 outputs:
   home:
@@ -65,8 +63,8 @@ markup:
 languages:
   en:
     title: |
-      #!/bin/note
-    subtitle: a checkbox uncheckers notepad
+      emc2hf Blog
+    subtitle: CTF Writeups and Security Research Blog
     menuMore: Show more
     writtenBy: Written by
     readMore: Read more
@@ -80,7 +78,7 @@ languages:
     params:
       logo:
         logoText: |
-          #!/bin/note
+          emc2hf Blog
         logoHomeLink: /
     
     menu:
@@ -93,6 +91,12 @@ languages:
       - identifier: categories
         name: Categories
         url: /categories
+      - identifier: writeups
+        name: CTF Writeups
+        url: /categories/writeup
+      - identifier: research
+        name: Security Research
+        url: /categories/research  
 
 minify:
   disableXML: true
