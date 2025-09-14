@@ -1140,29 +1140,29 @@ After that, I moved on to the web services on **DC-VIL (192.168.56.10)** and **W
 # Web Services
 
 ## DC-VIL
-{{< figure src="/images/goad/2-academy.ninja.lan/web_DC01.png" >}}
+{{< figure src="/images/goad/2-sql-rce/web_DC01.png" >}}
 
 The website only showed the default IIS page. I did some fuzzing with a small common wordlist to check if I could find anything interesting.
 
-{{< figure src="/images/goad/2-academy.ninja.lan/gobuster_DC01.png" >}}
+{{< figure src="/images/goad/2-sql-rce/gobuster_DC01.png" >}}
 
 Nothing interesting came up for now. I could use larger common wordlists or tech-specific ones for IIS, or check for vulnerabilities using `nuclei`, but I’ll leave that for later. It could also be using virtual hosting. I tried the machine’s domain name, but got nothing.
 
 ## WEB
-{{< figure src="/images/goad/2-academy.ninja.lan/web_WEB.png" >}}
+{{< figure src="/images/goad/2-sql-rce/web_WEB.png" >}}
 
 The `Contact` endpoint listed 4 emails that could be potential usernames. After looking at the topology, I decided to use `kerbrute` to test for valid usernames using both `name.surname` and `name` formats.
-{{< figure src="/images/goad/2-academy.ninja.lan/web_contacts.png" >}}
+{{< figure src="/images/goad/2-sql-rce/web_contacts.png" >}}
 
 ## Kerbrute
 I used `kerbrute userenum` to test if the usernames were valid, and all of them were.
 
-{{< figure src="/images/goad/2-academy.ninja.lan/kerbrute_web.png" >}}
+{{< figure src="/images/goad/2-sql-rce/kerbrute_web.png" >}}
 
 I then ran `kerbrute` with the `statistically-likely-usernames` wordlist for both name and name.surname formats and got some extra results:
 
-{{< figure src="/images/goad/2-academy.ninja.lan/kerbrute_userenum_john.png" >}}
-{{< figure src="/images/goad/2-academy.ninja.lan/kerbrute_userenum_john.smith.png" >}}
+{{< figure src="/images/goad/2-sql-rce/kerbrute_userenum_john.png" >}}
+{{< figure src="/images/goad/2-sql-rce/kerbrute_userenum_john.smith.png" >}}
 
 None of the users found had **Kerberos pre-authentication disabled**, so I couldn’t retrieve any password hashes with an **AS-REP Roasting** attack. (`kerbrute userenum` automatically attempts AS-REP Roasting.)
 
@@ -1170,50 +1170,50 @@ None of the users found had **Kerberos pre-authentication disabled**, so I could
 
 The `Students` endpoint had a list of students you could search for. It looked like it was interacting with a database, probably the **MSSQL database** on the **SQL host**.
 
-{{< figure src="/images/goad/2-academy.ninja.lan/web_students.png" >}}
+{{< figure src="/images/goad/2-sql-rce/web_students.png" >}}
 
 I used `fuff` to fuzz for **time-based SQL** injection in the `SearchString` and `orderBy` GET parameters, and successfully found a SQL injection in the `orderBy` parameter.
 
-{{< figure src="/images/goad/2-academy.ninja.lan/ffuf_sqli.png" >}}
+{{< figure src="/images/goad/2-sql-rce/ffuf_sqli.png" >}}
 
 After this, I confirmed the vulnerability with Burp’s Repeater and concluded there was a **Boolean-based blind SQLi** and a **Stacked Query SQLi**.
 
 **Boolean-based SQLi**:
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_detection_orderby.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_detection_orderby.png" >}}
 
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_detection_boolean_time.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_detection_boolean_time.png" >}}
 
 **Stacked Query SQLi**:
 
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_detection_stacked.png" >}}
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_detection_stacked_time.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_detection_stacked.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_detection_stacked_time.png" >}}
 
 I started gathering information about the database user using boolean-based queries combined with time delays, and discovered that the current user is `sa`, who is a **Database Administrator**.
 
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_username.png" >}}
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_username2.png" >}}
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_username2_time.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_username.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_username2.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_username2_time.png" >}}
 
 (ASCII 115 =`s` and 97 =`a`)
 
 Since I had the ability to use stacked queries as a Database Administrator, I created a new database user called `new_dba` and gave it Database Administrator privileges.
 
 **Create new user**:
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_create_user.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_create_user.png" >}}
 
 I then used Impacket’s `mssqlclient` to interact with the MSSQL database using the `new_dba` user.
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_check_dba.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_check_dba.png" >}}
 **Add new user to sysadmin**:
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_addsrvrolemember.png" >}}
-{{< figure src="/images/goad/2-academy.ninja.lan/sqli_check_dba_after_addsrvrolemember.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_addsrvrolemember.png" >}}
+{{< figure src="/images/goad/2-sql-rce/sqli_check_dba_after_addsrvrolemember.png" >}}
 
 
 Using `mssqlclient`, I proceeded to activate `xp_cmdshell` to get RCE on the **SQL host**. (`mssqlclient` has a built-in command to enable `xp_cmdshell`, but I did it manually.)
 
 **Check if `xp_cmdshell` is enabled**:
-{{< figure src="/images/goad/2-academy.ninja.lan/mssql_check_xp_cmdshell.png" >}}
+{{< figure src="/images/goad/2-sql-rce/mssql_check_xp_cmdshell.png" >}}
 `run_value` is `0`, meaning it wasn't enabled.
 
 **Enabling `xp_cmdshell`**:
-{{< figure src="/images/goad/2-academy.ninja.lan/mssql_activate_xp_cmdshell.png" >}}
+{{< figure src="/images/goad/2-sql-rce/mssql_activate_xp_cmdshell.png" >}}
 After enabling it, I achieved RCE on **SQL**.

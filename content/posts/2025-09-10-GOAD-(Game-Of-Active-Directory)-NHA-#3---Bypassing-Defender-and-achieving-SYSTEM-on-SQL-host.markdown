@@ -16,6 +16,7 @@ categories:
 - Antivirus
 cover:
   image: /images/goad/logo_GOAD.png
+draft: true
 ---
 
 After achieving RCE on the **SQL** host I proceeded to check the user's privileges.
