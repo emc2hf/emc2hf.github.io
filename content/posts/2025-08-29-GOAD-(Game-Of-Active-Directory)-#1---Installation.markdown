@@ -144,7 +144,6 @@ To access the 192.168.56.0/24 network (VirtualBox host-only range for GOAD VMs) 
 
 ## GOAD VM
 
-TODO: check si només amb el NAT hi ha connexió
 ```bash
 sudo su
 echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf

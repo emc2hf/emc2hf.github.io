@@ -1132,7 +1132,7 @@ Name:	sql.academy.ninja.lan
 Address: 192.168.56.22
 ```
 I tried a DNS Zone Transfer attack, but I wasn’t successful either.
-TODO: DNS ZONE TRANSFER
+{{< figure src="/images/goad/2-sql-rce/dig_dns_zone_transfer.png" >}}
 
 After that, I moved on to the web services on **DC-VIL (192.168.56.10)** and **WEB (192.168.56.21)**.
 

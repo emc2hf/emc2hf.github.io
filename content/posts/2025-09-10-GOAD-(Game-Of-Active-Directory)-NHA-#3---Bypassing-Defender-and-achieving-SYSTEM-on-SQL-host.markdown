@@ -34,10 +34,9 @@ I also confirmed I can access kali from the Windows environment with a HTTP requ
 I will be using 3 approaches to bypass Defender and be able to do the privilege escalation to achieve SYSTEM:
 - AMSI Bypass using PowerShell
 - Creating an indetectable PE with ShhhLoader tool
-- DLL SideLoading with ShhhLoader
 
 
-I will be using Metasploit in the 3 approaches, and nc with RoguePotato in the 1st one to practice OSCP-like methodology.
+I will be using Metasploit in the 2 approaches, and nc with RoguePotato after disabling Defender's Realtime Protection to practice OSCP-like methodology.
 
 # AMSI Bypass using PowerShell
 As we have PowerShell command execution, we can use a powershell script to bypass AMSI and load our preferred binary, all in-memory, successfully bypassing Defender. If you don't know what AMSI is, I recommend you to do the Holo Network in TryHackme, where it explains all those techniques I will be using and the theoretical concepts you need to know. To do a bery brief resume, AMSI is the real-time protection of defender for powershell, which blocks malicious code execution. 
@@ -157,3 +156,6 @@ I then used `getsystem` to exploit the `SeImpersonatePrivilege` and obtain `NT A
 I also migrated the process to avoid issues.
 {{< figure src="/images/goad/3-amsi-bypass/migrate.png" >}}
 
+# Creating an indetectable PE with ShhhLoader tool
+
+# RoguePotato
