@@ -1217,3 +1217,8 @@ Using `mssqlclient`, I proceeded to activate `xp_cmdshell` to get RCE on the **S
 **Enabling `xp_cmdshell`**:
 {{< figure src="/images/goad/2-sql-rce/mssql_activate_xp_cmdshell.png" >}}
 After enabling it, I achieved RCE on **SQL**.
+
+---
+
+**debian responder Dockerfile**
+{{< gist emc2hf 202c671cc34056c9fa664e9dfd90636e >}}
