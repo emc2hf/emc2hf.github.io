@@ -1,0 +1,523 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>CTF on emc2hf Blog
+</title>
+    <link>https://emc2hf.github.io/categories/ctf/</link>
+    <description>Recent content in CTF on emc2hf Blog
+</description>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <copyright>@emc2hf</copyright>
+    <lastBuildDate>Wed, 10 Sep 2025 16:22:03 +0200</lastBuildDate>
+    <atom:link href="https://emc2hf.github.io/categories/ctf/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GOAD (Game of Active Directory) NHA #3 - Bypassing Defender and Achieving SYSTEM on SQL Host</title>
+      <link>https://emc2hf.github.io/blog/2025/09/10/goad-game-of-active-directory-nha-%233-bypassing-defender-and-achieving-system-on-sql-host/</link>
+      <pubDate>Wed, 10 Sep 2025 16:22:03 +0200</pubDate>
+      <guid>https://emc2hf.github.io/blog/2025/09/10/goad-game-of-active-directory-nha-%233-bypassing-defender-and-achieving-system-on-sql-host/</guid>
+      <description>&lt;p&gt;After achieving RCE on the &lt;code&gt;SQL&lt;/code&gt; host I proceeded to check the user&amp;rsquo;s privileges.&lt;/p&gt;
+&lt;p&gt;&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;https://emc2hf.github.io/images/goad/3-amsi-bypass/mssql_whoami_priv.png&#34;/&gt; 
+&lt;/figure&gt;
+
+As this is a service account it has the &lt;code&gt;SeImpersonatePrivilege&lt;/code&gt; privilege enabled. This is a direct pwn using the Potato or the PrintSpoofer binaries.&lt;/p&gt;
+&lt;p&gt;Knowing the way I will get &lt;code&gt;NT AUTHORITY\SYSTEM&lt;/code&gt; on the &lt;strong&gt;SQL&lt;/strong&gt; host, I proceeded to check if &lt;strong&gt;Defender&lt;/strong&gt; is active.&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;https://emc2hf.github.io/images/goad/3-amsi-bypass/mssql_check_defender.png&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;I also confirmed I can access Kali from the Windows environment with an HTTP request:
+&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;https://emc2hf.github.io/images/goad/3-amsi-bypass/mssql_iwr.png&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;https://emc2hf.github.io/images/goad/3-amsi-bypass/mssql_kali_iwr_result.png&#34;/&gt; 
+&lt;/figure&gt;
+&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>GOAD (Game of Active Directory) NHA #2 - Initial Enumeration and First Code Execution</title>
+      <link>https://emc2hf.github.io/blog/2025/09/06/goad-game-of-active-directory-nha-%232-initial-enumeration-and-first-code-execution/</link>
+      <pubDate>Sat, 06 Sep 2025 23:14:35 +0200</pubDate>
+      <guid>https://emc2hf.github.io/blog/2025/09/06/goad-game-of-active-directory-nha-%232-initial-enumeration-and-first-code-execution/</guid>
+      <description>&lt;h1 id=&#34;initial-enumeration&#34;&gt;Initial enumeration&lt;/h1&gt;
+&lt;p&gt;The first thing I did after installation and connectivity were set up was run an Nmap scan with the &lt;code&gt;--top-ports 100&lt;/code&gt; option (default) to quickly identify open ports and up hosts, since some Windows hosts do not respond to ICMP.&lt;/p&gt;
+&lt;p&gt;After that, I ran a full Nmap service scan on the discovered hosts with the common scripts and service version options.&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;┌──&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;kali㉿kali&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;-&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;~/…/GOAD NHA/Evidence/Scans/Service&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;-&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;2025-09-06 23:31:40&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;└─$ cat hosts.txt
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;192.168.56.10
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;192.168.56.20
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;192.168.56.21
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;192.168.56.22
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;192.168.56.23
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;┌──&lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;kali㉿kali&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;-&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;~/…/GOAD NHA/Evidence/Scans/Service&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;-&lt;span style=&#34;color:#f92672&#34;&gt;[&lt;/span&gt;2025-09-06 23:31:40&lt;span style=&#34;color:#f92672&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;└─$ sudo nmap -sS --open -iL hosts.txt -p- -n -Pn -sCV -v -T5 -oN ALL_ports.txt
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Nmap scan report &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; 192.168.56.10
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;PORT      STATE SERVICE       VERSION
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;53/tcp    open  domain        Simple DNS Plus
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;80/tcp    open  http          Microsoft IIS httpd 10.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-IIS/10.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| http-methods: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   Supported Methods: OPTIONS TRACE GET HEAD POST
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  Potentially risky methods: TRACE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: IIS Windows Server
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;88/tcp    open  kerberos-sec  Microsoft Windows Kerberos &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;server time: 2025-09-06 17:10:15Z&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;135/tcp   open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;389/tcp   open  ldap          Microsoft Windows Active Directory LDAP &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Domain: ninja.hack0., Site: Default-First-Site-Name&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; -1s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:&amp;lt;unsupported&amp;gt;, DNS:dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;NINJA-CA
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-02T14:15:35
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-09-02T14:15:35
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   66fe:7620:d7c3:d5b1:cda1:4d26:dcb4:1f6c
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 6887:c456:112c:2ed8:94d3:0297:dd70:d59c:67aa:1a7f
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;445/tcp   open  microsoft-ds?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;464/tcp   open  kpasswd5?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;593/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;636/tcp   open  ssl/ldap      Microsoft Windows Active Directory LDAP &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Domain: ninja.hack0., Site: Default-First-Site-Name&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:&amp;lt;unsupported&amp;gt;, DNS:dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;NINJA-CA
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-02T14:15:35
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-09-02T14:15:35
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   66fe:7620:d7c3:d5b1:cda1:4d26:dcb4:1f6c
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 6887:c456:112c:2ed8:94d3:0297:dd70:d59c:67aa:1a7f
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3268/tcp  open  ldap          Microsoft Windows Active Directory LDAP &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Domain: ninja.hack0., Site: Default-First-Site-Name&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:&amp;lt;unsupported&amp;gt;, DNS:dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;NINJA-CA
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-02T14:15:35
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-09-02T14:15:35
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   66fe:7620:d7c3:d5b1:cda1:4d26:dcb4:1f6c
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 6887:c456:112c:2ed8:94d3:0297:dd70:d59c:67aa:1a7f
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3269/tcp  open  ssl/ldap      Microsoft Windows Active Directory LDAP &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Domain: ninja.hack0., Site: Default-First-Site-Name&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: othername: 1.3.6.1.4.1.311.25.1:&amp;lt;unsupported&amp;gt;, DNS:dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;NINJA-CA
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-02T14:15:35
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-09-02T14:15:35
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   66fe:7620:d7c3:d5b1:cda1:4d26:dcb4:1f6c
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 6887:c456:112c:2ed8:94d3:0297:dd70:d59c:67aa:1a7f
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3389/tcp  open  ms-wbt-server Microsoft Terminal Services
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dc-vil.ninja.hack
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-01T12:29:13
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-03-03T12:29:13
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   2f5b:ea35:1df1:d9a8:f7a5:a0ab:078b:1f05
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 0ec2:e105:bb4e:a168:58ba:7e26:ff30:85aa:3a46:e89f
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5986/tcp  open  ssl/http      Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: DNS:VAGRANT, DNS:vagrant
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-08-31T10:27:02
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2028-08-30T10:27:02
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   70e6:540d:00ac:0a19:12ba:b2fd:ae3b:1509
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 3365:8276:a074:3f12:0caa:04cf:1652:70cc:870c:d8a3
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| tls-alpn: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  http/1.1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:05+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;9389/tcp  open  mc-nmf        .NET Message Framing
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49666/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49668/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49669/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49670/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49671/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49678/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49683/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49698/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49708/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Service Info: Host: DC-VIL; OS: Windows; CPE: cpe:/o:microsoft:windows
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host script results:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-time: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   date: 2025-09-06T17:11:24
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  start_date: N/A
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-security-mode: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   3:1:1: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    Message signing enabled and required
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| nbstat: NetBIOS name: DC-VIL, NetBIOS user: &amp;lt;unknown&amp;gt;, NetBIOS MAC: 08:00:27:85:62:4b &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;PCS Systemtechnik/Oracle VirtualBox virtual NIC&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Names:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DC-VIL&amp;lt;00&amp;gt;           Flags: &amp;lt;unique&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   NINJA&amp;lt;00&amp;gt;            Flags: &amp;lt;group&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   NINJA&amp;lt;1c&amp;gt;            Flags: &amp;lt;group&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DC-VIL&amp;lt;20&amp;gt;           Flags: &amp;lt;unique&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  NINJA&amp;lt;1b&amp;gt;            Flags: &amp;lt;unique&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Nmap scan report &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; 192.168.56.20
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host is up &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0.010s latency&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Not shown: &lt;span style=&#34;color:#ae81ff&#34;&gt;65512&lt;/span&gt; filtered tcp ports &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;no-response&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;PORT      STATE SERVICE       VERSION
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;53/tcp    open  domain        Simple DNS Plus
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;88/tcp    open  kerberos-sec  Microsoft Windows Kerberos &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;server time: 2025-09-06 17:10:15Z&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;135/tcp   open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;389/tcp   open  ldap          Microsoft Windows Active Directory LDAP &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Domain: academy.ninja.lan, Site: Default-First-Site-Name&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;445/tcp   open  microsoft-ds?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;464/tcp   open  kpasswd5?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;593/tcp   open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;636/tcp   open  tcpwrapped
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3268/tcp  open  ldap          Microsoft Windows Active Directory LDAP &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;Domain: academy.ninja.lan, Site: Default-First-Site-Name&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3269/tcp  open  tcpwrapped
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3389/tcp  open  ms-wbt-server Microsoft Terminal Services
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| rdp-ntlm-info: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   Target_Name: ACADEMY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   NetBIOS_Domain_Name: ACADEMY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   NetBIOS_Computer_Name: DC-AC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DNS_Domain_Name: academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DNS_Computer_Name: dc-ac.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DNS_Tree_Name: academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   Product_Version: 10.0.17763
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  System_Time: 2025-09-06T17:11:16+00:00
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dc-ac.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;dc-ac.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-01T12:27:27
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-03-03T12:27:27
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   1dd8:cd11:f35c:b997:c745:3e33:6040:6d15
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 539b:7091:f7c8:f413:bad2:af88:fd35:b931:5431:54b8
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5986/tcp  open  ssl/http      Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:07+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: DNS:VAGRANT, DNS:vagrant
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-08-31T10:53:13
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2028-08-30T10:53:13
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   b8ec:0505:79e5:9847:59ae:efff:47c2:36d1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 8209:f610:07b1:979d:615f:5529:1b79:9b52:be21:5cf8
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| tls-alpn: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  http/1.1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;9389/tcp  open  mc-nmf        .NET Message Framing
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49667/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49668/tcp open  ncacn_http    Microsoft Windows RPC over HTTP 1.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49669/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49670/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49671/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49672/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49680/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49696/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Service Info: Host: DC-AC; OS: Windows; CPE: cpe:/o:microsoft:windows
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host script results:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-security-mode: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   3:1:1: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    Message signing enabled and required
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| nbstat: NetBIOS name: DC-AC, NetBIOS user: &amp;lt;unknown&amp;gt;, NetBIOS MAC: 08:00:27:7d:fa:ab &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;PCS Systemtechnik/Oracle VirtualBox virtual NIC&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Names:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DC-AC&amp;lt;00&amp;gt;            Flags: &amp;lt;unique&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   ACADEMY&amp;lt;00&amp;gt;          Flags: &amp;lt;group&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   ACADEMY&amp;lt;1c&amp;gt;          Flags: &amp;lt;group&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DC-AC&amp;lt;20&amp;gt;            Flags: &amp;lt;unique&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  ACADEMY&amp;lt;1b&amp;gt;          Flags: &amp;lt;unique&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-time: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   date: 2025-09-06T17:11:21
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  start_date: N/A
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Nmap scan report &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; 192.168.56.21
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host is up &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0.0037s latency&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Not shown: &lt;span style=&#34;color:#ae81ff&#34;&gt;65529&lt;/span&gt; filtered tcp ports &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;no-response&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;PORT     STATE SERVICE       VERSION
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;80/tcp   open  http          Microsoft IIS httpd 10.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Home Page - NHA - Ninja Hacker Academy
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| http-methods: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   Supported Methods: OPTIONS TRACE GET HEAD POST
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  Potentially risky methods: TRACE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-favicon: Unknown favicon MD5: 4859E39AE6C0F1F428F2126A6BB32BD9
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-IIS/10.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;135/tcp  open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;445/tcp  open  microsoft-ds?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3389/tcp open  ms-wbt-server Microsoft Terminal Services
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;web.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;web.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-01T13:03:46
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-03-03T13:03:46
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   b886:6da8:9d70:ff44:af9c:0f2f:f1d1:28f2
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 6552:4c8a:9e73:40a0:b928:290f:5560:9d7f:d998:8919
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5985/tcp open  http          Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5986/tcp open  ssl/http      Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; +1s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: DNS:VAGRANT, DNS:vagrant
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-08-31T11:08:22
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2028-08-30T11:08:22
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   f674:b4b9:ec3c:aeae:ec4c:031a:6a77:5ac7
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 5d7e:83bf:fdfe:365d:31b0:0da7:d554:4c0f:e318:82b6
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| tls-alpn: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  http/1.1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host script results:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-security-mode: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   3:1:1: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    Message signing enabled but not required
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-time: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   date: 2025-09-06T17:11:26
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  start_date: N/A
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Nmap scan report &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; 192.168.56.22
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host is up &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0.011s latency&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Not shown: &lt;span style=&#34;color:#ae81ff&#34;&gt;65334&lt;/span&gt; closed tcp ports &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;reset&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;183&lt;/span&gt; filtered tcp ports &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;no-response&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;PORT      STATE SERVICE       VERSION
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;135/tcp   open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;139/tcp   open  netbios-ssn   Microsoft Windows netbios-ssn
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;445/tcp   open  microsoft-ds?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;1433/tcp  open  ms-sql-s      Microsoft SQL Server &lt;span style=&#34;color:#ae81ff&#34;&gt;2019&lt;/span&gt; 15.00.2000.00; RTM
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ms-sql-ntlm-info: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   192.168.56.22:1433: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     Target_Name: ACADEMY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     NetBIOS_Domain_Name: ACADEMY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     NetBIOS_Computer_Name: SQL
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     DNS_Domain_Name: academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     DNS_Computer_Name: sql.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     DNS_Tree_Name: academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    Product_Version: 10.0.17763
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;SSL_Self_Signed_Fallback
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;SSL_Self_Signed_Fallback
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-06T16:47:04
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2055-09-06T16:47:04
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   9f06:0296:450f:8427:f3a4:67bb:b200:07c4
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 5093:43cb:c2fa:a3df:4f6e:a5e5:c08b:e336:9e2b:3877
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ms-sql-info: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   192.168.56.22:1433: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     Version: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       name: Microsoft SQL Server &lt;span style=&#34;color:#ae81ff&#34;&gt;2019&lt;/span&gt; RTM
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       number: 15.00.2000.00
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       Product: Microsoft SQL Server &lt;span style=&#34;color:#ae81ff&#34;&gt;2019&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       Service pack level: RTM
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       Post-SP patches applied: false
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    TCP port: &lt;span style=&#34;color:#ae81ff&#34;&gt;1433&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3389/tcp  open  ms-wbt-server Microsoft Terminal Services
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;sql.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;sql.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-01T13:09:00
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-03-03T13:09:00
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   cc00:a47b:79ef:3cf2:d604:307b:7770:e64c
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 3f38:0daa:a896:74a6:dcd7:61f3:a1e5:a228:9f79:e1da
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5986/tcp  open  ssl/http      Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| tls-alpn: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  http/1.1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: DNS:VAGRANT, DNS:vagrant
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-08-31T11:27:52
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2028-08-30T11:27:52
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   d8b4:8b63:171e:2808:50c0:8439:cbd5:7516
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 7c7e:2eb0:22ee:7445:1143:93b2:1df5:a60c:7eb4:6098
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;47001/tcp open  http          Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49664/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49665/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49666/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49667/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49670/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49687/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49688/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49703/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49705/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49771/tcp open  ms-sql-s      Microsoft SQL Server &lt;span style=&#34;color:#ae81ff&#34;&gt;2019&lt;/span&gt; 15.00.2000.00; RTM
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ms-sql-ntlm-info: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   192.168.56.22:49771: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     Target_Name: ACADEMY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     NetBIOS_Domain_Name: ACADEMY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     NetBIOS_Computer_Name: SQL
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     DNS_Domain_Name: academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     DNS_Computer_Name: sql.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     DNS_Tree_Name: academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    Product_Version: 10.0.17763
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;SSL_Self_Signed_Fallback
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;SSL_Self_Signed_Fallback
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-06T16:47:04
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2055-09-06T16:47:04
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   9f06:0296:450f:8427:f3a4:67bb:b200:07c4
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 5093:43cb:c2fa:a3df:4f6e:a5e5:c08b:e336:9e2b:3877
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ms-sql-info: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   192.168.56.22:49771: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     Version: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       name: Microsoft SQL Server &lt;span style=&#34;color:#ae81ff&#34;&gt;2019&lt;/span&gt; RTM
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       number: 15.00.2000.00
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       Product: Microsoft SQL Server &lt;span style=&#34;color:#ae81ff&#34;&gt;2019&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       Service pack level: RTM
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|       Post-SP patches applied: false
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    TCP port: &lt;span style=&#34;color:#ae81ff&#34;&gt;49771&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host script results:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-security-mode: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   3:1:1: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    Message signing enabled but not required
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-time: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   date: 2025-09-06T17:11:30
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  start_date: N/A
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| nbstat: NetBIOS name: SQL, NetBIOS user: &amp;lt;unknown&amp;gt;, NetBIOS MAC: 08:00:27:7c:38:c9 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;PCS Systemtechnik/Oracle VirtualBox virtual NIC&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Names:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   SQL&amp;lt;00&amp;gt;              Flags: &amp;lt;unique&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   ACADEMY&amp;lt;00&amp;gt;          Flags: &amp;lt;group&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  SQL&amp;lt;20&amp;gt;              Flags: &amp;lt;unique&amp;gt;&amp;lt;active&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Nmap scan report &lt;span style=&#34;color:#66d9ef&#34;&gt;for&lt;/span&gt; 192.168.56.23
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host is up &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;0.0064s latency&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Not shown: &lt;span style=&#34;color:#ae81ff&#34;&gt;65529&lt;/span&gt; filtered tcp ports &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;no-response&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Some closed ports may be reported as filtered due to --defeat-rst-ratelimit
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;PORT      STATE SERVICE       VERSION
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;135/tcp   open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;445/tcp   open  microsoft-ds?
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;3389/tcp  open  ms-wbt-server Microsoft Terminal Services
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; +1s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| rdp-ntlm-info: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   Target_Name: ACADEMY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   NetBIOS_Domain_Name: ACADEMY
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   NetBIOS_Computer_Name: SHARE
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DNS_Domain_Name: academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   DNS_Computer_Name: share.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   Product_Version: 10.0.17763
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  System_Time: 2025-09-06T17:11:22+00:00
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;share.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;share.academy.ninja.lan
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;2048&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-09-01T13:05:14
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2026-03-03T13:05:14
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   c93e:9ae7:ae75:d73e:8380:0544:ee9f:e974
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 31b8:262d:c57f:b50f:9136:4875:998a:258d:4a6d:2aad
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5985/tcp  open  http          Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;5986/tcp  open  ssl/http      Microsoft HTTPAPI httpd 2.0 &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;SSDP/UPnP&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_ssl-date: 2025-09-06T17:12:06+00:00; 0s from scanner time.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-title: Not Found
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| tls-alpn: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  http/1.1
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| ssl-cert: Subject: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Subject Alternative Name: DNS:VAGRANT, DNS:vagrant
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Issuer: commonName&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;VAGRANT
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key type: rsa
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Public Key bits: &lt;span style=&#34;color:#ae81ff&#34;&gt;4096&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Signature Algorithm: sha256WithRSAEncryption
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid before: 2025-08-31T11:50:41
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| Not valid after:  2028-08-30T11:50:41
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| MD5:   9ff1:46c7:e77e:b62b:324e:1d13:295c:3854
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_SHA-1: 75b7:f10a:8e39:9888:611c:077a:efe1:4c31:53d7:6173
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_http-server-header: Microsoft-HTTPAPI/2.0
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;49690/tcp open  msrpc         Microsoft Windows RPC
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Host script results:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-time: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   date: 2025-09-06T17:11:33
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_  start_date: N/A
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| smb2-security-mode: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   3:1:1: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    Message signing enabled but not required
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;NSE: Script Post-scanning.
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Initiating NSE at 19:12
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Completed NSE at 19:12, 0.00s elapsed
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Initiating NSE at 19:12
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Completed NSE at 19:12, 0.00s elapsed
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Initiating NSE at 19:12
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Completed NSE at 19:12, 0.00s elapsed
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Post-scan script results:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;| clock-skew: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|   0s: 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     192.168.56.20
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     192.168.56.21
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     192.168.56.10
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|     192.168.56.22
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;|_    192.168.56.23
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Read data files from: /usr/share/nmap
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Nmap &lt;span style=&#34;color:#66d9ef&#34;&gt;done&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; IP addresses &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;5&lt;/span&gt; hosts up&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; scanned in 311.47 seconds
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;           Raw packets sent: &lt;span style=&#34;color:#ae81ff&#34;&gt;662919&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;29.168MB&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt; | Rcvd: &lt;span style=&#34;color:#ae81ff&#34;&gt;71100&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;(&lt;/span&gt;2.847MB&lt;span style=&#34;color:#f92672&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;While the scan was running, I started Responder in the Ubuntu VM to see if any hashes were captured, but after a long time, nothing came up.
+I used a custom Docker image with Responder installed. The Dockerfile can be found &lt;a href=&#34;https://gist.github.com/emc2hf/202c671cc34056c9fa664e9dfd90636e&#34;&gt;here&lt;/a&gt; and at the end of this blog post as a GitHub Gist.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>GOAD (Game of Active Directory) NHA #1 - Installation</title>
+      <link>https://emc2hf.github.io/blog/2025/08/29/goad-game-of-active-directory-nha-%231-installation/</link>
+      <pubDate>Fri, 29 Aug 2025 10:33:39 +0200</pubDate>
+      <guid>https://emc2hf.github.io/blog/2025/08/29/goad-game-of-active-directory-nha-%231-installation/</guid>
+      <description>&lt;p&gt;Hi guys, in this post I will be installing &lt;a href=&#34;https://github.com/Orange-Cyberdefense/GOAD&#34;&gt;GOAD&lt;/a&gt; on a nested virtualization Ubuntu server. This is not the recommended way to install it, but I don&amp;rsquo;t have enough RAM on my other computer and it&amp;rsquo;s still viable (I already tested it with &lt;a href=&#34;https://orange-cyberdefense.github.io/GOAD/labs/GOAD-Light/&#34;&gt;GOAD Light&lt;/a&gt; a few months ago). If you have enough RAM, I recommend installing it on a bare metal machine, the performance will be much better and the process is exactly the same. This installation is only valid for Linux machines, but GOAD can also be installed on Windows.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

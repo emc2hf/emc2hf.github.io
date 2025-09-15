@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Evasion on emc2hf Blog
+</title>
+    <link>https://emc2hf.github.io/categories/evasion/</link>
+    <description>Recent content in Evasion on emc2hf Blog
+</description>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <copyright>@emc2hf</copyright>
+    <lastBuildDate>Wed, 10 Sep 2025 16:22:03 +0200</lastBuildDate>
+    <atom:link href="https://emc2hf.github.io/categories/evasion/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>GOAD (Game of Active Directory) NHA #3 - Bypassing Defender and Achieving SYSTEM on SQL Host</title>
+      <link>https://emc2hf.github.io/blog/2025/09/10/goad-game-of-active-directory-nha-%233-bypassing-defender-and-achieving-system-on-sql-host/</link>
+      <pubDate>Wed, 10 Sep 2025 16:22:03 +0200</pubDate>
+      <guid>https://emc2hf.github.io/blog/2025/09/10/goad-game-of-active-directory-nha-%233-bypassing-defender-and-achieving-system-on-sql-host/</guid>
+      <description>&lt;p&gt;After achieving RCE on the &lt;code&gt;SQL&lt;/code&gt; host I proceeded to check the user&amp;rsquo;s privileges.&lt;/p&gt;
+&lt;p&gt;&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;https://emc2hf.github.io/images/goad/3-amsi-bypass/mssql_whoami_priv.png&#34;/&gt; 
+&lt;/figure&gt;
+
+As this is a service account it has the &lt;code&gt;SeImpersonatePrivilege&lt;/code&gt; privilege enabled. This is a direct pwn using the Potato or the PrintSpoofer binaries.&lt;/p&gt;
+&lt;p&gt;Knowing the way I will get &lt;code&gt;NT AUTHORITY\SYSTEM&lt;/code&gt; on the &lt;strong&gt;SQL&lt;/strong&gt; host, I proceeded to check if &lt;strong&gt;Defender&lt;/strong&gt; is active.&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;https://emc2hf.github.io/images/goad/3-amsi-bypass/mssql_check_defender.png&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;p&gt;I also confirmed I can access Kali from the Windows environment with an HTTP request:
+&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;https://emc2hf.github.io/images/goad/3-amsi-bypass/mssql_iwr.png&#34;/&gt; 
+&lt;/figure&gt;
+
+&lt;figure&gt;
+    &lt;img loading=&#34;lazy&#34; src=&#34;https://emc2hf.github.io/images/goad/3-amsi-bypass/mssql_kali_iwr_result.png&#34;/&gt; 
+&lt;/figure&gt;
+&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
